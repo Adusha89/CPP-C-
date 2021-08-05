@@ -96,13 +96,13 @@ public:
         return true;
     }
 
+    bool isEmpty() {
+        if(!m_lenght) return true;
+        return false;
+    }
+
     int pop() {
-        if(!m_lenght) {
-            std::cout << "Stack is empty!" << std::endl;
-            return 0;
-        }   else {
             return m_stack[--m_lenght];
-        }
     }
 };
 
@@ -118,17 +118,26 @@ int main() {
 
     Stack thirdtask;
     thirdtask.print();
-    thirdtask.pop();
+
+    if(!thirdtask.isEmpty()) std::cout << thirdtask.pop() << std::endl;
+    else std::cout << "Stack is empty!" << std::endl;
+
     thirdtask.print();
     if(!thirdtask.push(5)) std::cout << "Stack is full!" << std::endl;
     thirdtask.print();
-    std::cout << thirdtask.pop() << std::endl;
-    thirdtask.print();
+    
+
+    if(!thirdtask.isEmpty()) std::cout << thirdtask.pop() << std::endl;
+    else std::cout << "Stack is empty!" << std::endl;
+
     if(!thirdtask.push(6)) std::cout << "Stack is full!" << std::endl;
     if(!thirdtask.push(7)) std::cout << "Stack is full!" << std::endl;
     if(!thirdtask.push(8)) std::cout << "Stack is full!" << std::endl;
     thirdtask.print();
-    std::cout << thirdtask.pop() << std::endl;
+    
+    if(!thirdtask.isEmpty()) std::cout << thirdtask.pop() << std::endl;
+    else std::cout << "Stack is empty!" << std::endl;
+    
     thirdtask.print();
     thirdtask.reset();
     thirdtask.print();
