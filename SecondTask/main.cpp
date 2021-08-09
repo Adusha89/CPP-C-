@@ -276,7 +276,7 @@ int main ()
 {
     listStudent list(counter);
 
-    //firstTask(list);
+    firstTask(list);
 
     Apple a("red");
     Banana b;
