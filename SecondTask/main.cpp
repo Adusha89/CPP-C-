@@ -242,11 +242,7 @@ public:
 class Apple : public Fruit
 {
 public:
-    Apple(std::string name, std::string color) : Fruit(name, color)
-    {
-
-    }
-    Apple(std::string color) : Fruit("apple", color)
+    Apple(std::string color = "", std::string name = "apple") : Fruit(name, color)
     {
 
     }
@@ -255,7 +251,7 @@ public:
 class Banana : public Fruit
 {
 public:
-    Banana() : Fruit("banana", "yellow")
+    Banana(std::string name = "banana", std::string color = "yellow") : Fruit(name, color)
     {
         
         
@@ -265,7 +261,7 @@ public:
 class GrannySmith : public Apple
 {
 public:
-    GrannySmith() : Apple("Granny Smith apple", "green")
+    GrannySmith(std::string color = "green", std::string name = "Granny Smith apple" ) : Apple(color, name)
     {
 
     }
