@@ -109,13 +109,13 @@ public:
 
 using listStudent = std::vector<Student>;
 
-int findStudent (listStudent &list)
+int findStudent (const listStudent &list)
 {
     std::string key;
     std::cout << "Input key find" << std::endl;
     std::cin >> key;
 
-    for (int i = 0; i < counter; i++)
+    for (size_t i = 0; i < counter; i++)
     {
         if (list[i].getName() == key)
         {
@@ -183,7 +183,6 @@ void firstTask (listStudent &list)
         {
         case 1:
             list.resize(++counter);
-            list[counter - 1].print();
             break;
 
         case 2:
