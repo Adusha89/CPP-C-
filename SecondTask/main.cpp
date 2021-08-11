@@ -29,6 +29,10 @@ public:
         std::cin >> m_weight;
     }
 
+    virtual ~Person()
+    {
+
+    }
 
     void changeName ()
     {
@@ -283,3 +287,67 @@ int main ()
     
     return 0;
 }
+
+
+//Третье задание
+
+class Game
+{
+private:
+
+public:
+    //Метод ввода кол-ва игроков
+    //Реализация очереди хода
+    //Создание колоды
+    //Перезапуск игры при необходимости
+};
+
+class Card
+{
+private:
+
+public:
+
+    void flip() {} //Переворачивает карту
+    int getValue() const {} //Возвращает значение карты
+};
+
+class Hand
+{
+private:
+
+public:
+    void add(Card&) {} //Добавляет новую карту игроку
+    int getValue() const {} //Возвращает сумму карт
+    void clear() {} //Убирает все карты для новой раздачи
+};
+
+class Deck : public Hand
+{
+private:
+
+public:
+    //Колода карт, должна перемешивать карты и раздавать игрокам.
+};
+
+class GenericPlayer : public Hand
+{
+private:
+    std::string name;
+public:
+    //Метод проверки перебора, метод получения еще одной карты
+};
+
+class Player : public GenericPlayer
+{
+ private:
+
+ public:
+    //Метод проверки победы/проигрыша
+};
+
+class House : public GenericPlayer
+{
+
+};
+
