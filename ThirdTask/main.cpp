@@ -2,6 +2,7 @@
 
 
 //Первое задание
+//===========================================================
 class Figure
 {
 public:
@@ -128,8 +129,73 @@ public:
 
 };
 
+//Второе задание
+//==========================================================
+
+class Car
+{
+protected:
+    std::string company;
+    std::string model;
+
+public:
+    Car(std::string _company, std::string _model) 
+        : company(_company), model(_model)
+        {
+            std::cout << "Car company: " << company << " Model: " << model << std::endl;
+        }
+
+    virtual ~Car()
+    {
+
+    }
+};
+
+class PassengerCar : virtual public Car
+{
+public:
+    PassengerCar(std::string _company, std::string _model)
+        : Car(_company, _model)
+        {
+            std::cout << "PassengerCar company: " << company << " Model: " << model << std::endl;
+        }
+    virtual ~PassengerCar()
+    {
+
+    }
+};
+
+class Bus : virtual public Car
+{
+public:
+    Bus(std::string _company, std::string _model)
+        : Car(_company, _model)
+        {
+            std::cout << "Bus company: " << company << " Model: " << model << std::endl;
+        }
+    virtual ~Bus()
+    {
+
+    }
+};
+
+class Minivan : public PassengerCar, public Bus
+{
+public:
+    Minivan(std::string _company, std::string _model)
+        : Car(_company, _model), PassengerCar(_company, _model), Bus(_company, _model)
+        {
+            std::cout << "Minivan company: " << company << " Model: " << model << std::endl;
+        }
+    virtual ~Minivan()
+    {
+        
+    }
+};
+
 int main()
 {
+    //Первое задание
     Parallelogram* p = new Parallelogram (5, 5);
     Rectangle* r = new Rectangle (2, 2);
     Square* s = new Square (3);
@@ -137,20 +203,33 @@ int main()
     Circle* c = new Circle (2);
     
     Figure* f = p;
-    std::cout << f->area() << std::endl;
+    std::cout << "Parallelogram area: " << f->area() << std::endl;
 
     f = r;
-    std::cout << f->area() << std::endl;
+    std::cout << "Rectangle area: " << f->area() << std::endl;
 
     f = s;
-    std::cout << f->area() << std::endl;
+    std::cout << "Square area: " << f->area() << std::endl;
 
     f = rh;
-    std::cout << f->area() << std::endl;
+    std::cout << "Rhombus area: " << f->area() << std::endl;
 
     f = c;
-    std::cout << f->area() << std::endl;
+    std::cout << "Circle area: " << f->area() << std::endl;
+    std::cout << std::endl << "Second task" << std::endl;
 
+    //Второе задание
+
+    Car car("Lada", "Vesta");
+    std::cout << std::endl;
+
+    PassengerCar passengerCar("VW", "Polo");
+    std::cout << std::endl;
+
+    Bus bus("Man", "325");
+    std::cout << std::endl;
+
+    Minivan minivan("VW", "Transporter");
 
     return 0;
 }
