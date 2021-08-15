@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdint>
 
 
 //Первое задание
@@ -189,9 +190,188 @@ public:
         }
     virtual ~Minivan()
     {
-        
+
     }
 };
+
+//Третье задание
+
+class Fraction
+{
+private:
+
+    int m_numerator;
+    uint8_t m_denominator;
+
+public:
+    Fraction() : m_numerator(0), m_denominator(0)
+    {
+
+    }
+
+    Fraction(int numerator, uint8_t denominator)
+        : m_numerator(numerator)
+    {
+        if (denominator == 0)
+        {
+            //Т.к. не работали с исключенииями, то считаю, что, по умолчанию, если знаменатель равен 0, 
+            //то пользователь подразумевал его отсутствие, т.е. 3/0 тождественно целому 3 или 3/1
+            m_denominator = 1;
+        }
+        else 
+        {
+            m_denominator = denominator;
+        }
+        
+    }
+
+
+    friend std::ostream& operator<< (std::ostream &out, const Fraction &f1);
+    friend Fraction operator+(const Fraction&, const Fraction&);
+    friend Fraction operator-(const Fraction&, const Fraction&);
+    friend Fraction operator*(const Fraction&, const Fraction&);
+    friend Fraction operator/(const Fraction&, const Fraction&);
+    friend bool operator==(const Fraction&, const Fraction&);
+    friend bool operator!=(const Fraction&, const Fraction&);
+    friend bool operator<(const Fraction&, const Fraction&);
+    friend bool operator>=(const Fraction&, const Fraction&);
+    friend bool operator>(const Fraction&, const Fraction&);
+    friend bool operator<=(const Fraction&, const Fraction&);
+
+    Fraction operator-() const
+    {
+        return Fraction(-m_numerator, m_denominator);
+    }
+
+};
+
+std::ostream& operator<< (std::ostream &out, const Fraction &f1)
+{
+    out << f1.m_numerator << "/" << +f1.m_denominator;
+    return out;
+}
+
+Fraction operator+(const Fraction& f1, const Fraction& f2)
+{   
+    if (f1.m_denominator == f2.m_denominator)
+    {
+        return Fraction((f1.m_numerator + f2.m_numerator), f1.m_denominator);
+    }
+    return Fraction((f1.m_numerator * f2.m_denominator) + (f2.m_numerator * f1.m_denominator), f1.m_denominator * f2.m_denominator);
+
+}
+
+Fraction operator-(const Fraction& f1, const Fraction& f2)
+{   
+    if (f1.m_denominator == f2.m_denominator)
+    {
+        return Fraction((f1.m_numerator - f2.m_numerator), f1.m_denominator);
+    }
+    return Fraction((f1.m_numerator * f2.m_denominator) - (f2.m_numerator * f1.m_denominator), f1.m_denominator * f2.m_denominator);
+
+}
+
+Fraction operator*(const Fraction& f1, const Fraction& f2)
+{
+    if(f1.m_numerator == 0 || f2.m_numerator == 0) return Fraction();
+    return Fraction(f1.m_numerator * f2.m_numerator, f1.m_denominator * f2.m_denominator);
+}
+
+Fraction operator/(const Fraction& f1, const Fraction& f2)
+{
+    if(f1.m_numerator == 0 || f2.m_numerator == 0) return Fraction();
+    return Fraction(f1.m_numerator * f2.m_denominator, f1.m_denominator * f2.m_numerator);
+}
+
+bool operator==(const Fraction& f1, const Fraction& f2)
+{
+    return f1.m_numerator * f2.m_denominator == f2.m_numerator * f1.m_denominator;
+}
+
+bool operator!=(const Fraction& f1, const Fraction& f2)
+{
+    return !(f1 == f2);
+}
+
+bool operator<(const Fraction& f1, const Fraction& f2)
+{
+    return f1.m_numerator * f2.m_denominator < f2.m_numerator * f1.m_denominator;
+}
+
+bool operator>=(const Fraction& f1, const Fraction& f2)
+{
+    return !(f1 < f2);
+}
+
+bool operator>(const Fraction& f1, const Fraction& f2)
+{
+    return f1.m_numerator * f2.m_denominator > f2.m_numerator * f1.m_denominator;
+}
+
+bool operator<=(const Fraction& f1, const Fraction& f2)
+{
+    return !(f1 > f2);
+}
+
+//Четвертое задание
+//==========================================================
+
+class Card
+{
+private:
+
+    enum class Suit //Масть
+    {
+        spades, //пики
+        hearts, //червы
+        clubs, //трефы
+        diamonds //бубны
+    } m_suit;
+
+    enum class Nominal
+    {
+        two = 2,
+        three,
+        four,
+        five,
+        six,
+        seven,
+        eight,
+        nine,
+        ten,
+        jack = 10,
+        queen = 10,
+        king = 10,
+        ace = 1
+    } m_nominal;
+
+    bool m_isInverted = false; //рубашкой вверх
+
+public:
+
+    Card(uint8_t suit, uint8_t nominal, bool is_inverted = false)
+        : m_suit(static_cast<Suit>(suit)), m_nominal(static_cast<Nominal>(nominal)), m_isInverted(is_inverted)
+    {
+
+    }
+
+    virtual ~Card()
+    {
+
+    }
+
+    void Flip()
+    {
+        (m_isInverted) ? (m_isInverted = false) : (m_isInverted = true);
+    }
+
+    uint8_t GetValue() const
+    {
+        return static_cast<uint8_t>(m_nominal);
+    }
+
+};
+
 
 int main()
 {
@@ -230,6 +410,29 @@ int main()
     std::cout << std::endl;
 
     Minivan minivan("VW", "Transporter");
+
+    //Четвертое задание
+    Card card(3,3);
+
+    std::cout << +card.GetValue() << std::endl;
+
+    //Третье задание
+    Fraction a(1, 2);
+    Fraction b(1, 2);
+    Fraction d(2, 3);
+
+    std::cout << a - (-b) << std::endl;
+    std::cout << a - b << std::endl;
+    std::cout << a * b << std::endl;
+    std::cout << a / b << std::endl;
+    std::cout << -d << std::endl;
+
+    std::cout << std::boolalpha << (a == b) << std::endl;
+    std::cout << std::boolalpha << (a != b) << std::endl;
+    std::cout << std::boolalpha << (a < b) << std::endl;
+    std::cout << std::boolalpha << (a >= b) << std::endl;
+    std::cout << std::boolalpha << (a > b) << std::endl;
+    std::cout << std::boolalpha << (a <= b) << std::endl;
 
     return 0;
 }
