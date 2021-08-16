@@ -23,7 +23,7 @@ public:
 
 class Parallelogram : public Figure
 {
-protected:
+private:
     double m_lenght;
     double m_height;
 
@@ -37,6 +37,16 @@ public:
     virtual ~Parallelogram()
     {
 
+    }
+
+    double getLenght() const
+    {
+        return m_lenght;
+    }
+
+    double getHeight() const
+    {
+        return m_height;
     }
 
     double area() const override
@@ -58,11 +68,6 @@ public:
     {
 
     } 
-
-    double area() const override
-    {
-        return m_lenght * m_height;
-    }
 };
 
 class Square : public Parallelogram
@@ -78,11 +83,6 @@ public:
     {
 
     } 
-
-    double area() const override
-    {
-        return m_lenght * m_lenght;
-    }
 };
 
 class Rhombus : public Parallelogram
@@ -98,11 +98,6 @@ public:
     {
 
     } 
-
-    double area() const override
-    {
-        return m_lenght * m_height;
-    }
 };
 
 class Circle : public Figure
@@ -135,7 +130,7 @@ public:
 
 class Car
 {
-protected:
+private:
     std::string company;
     std::string model;
 
@@ -150,6 +145,7 @@ public:
     {
 
     }
+
 };
 
 class PassengerCar : virtual public Car
@@ -158,7 +154,7 @@ public:
     PassengerCar(std::string _company, std::string _model)
         : Car(_company, _model)
         {
-            std::cout << "PassengerCar company: " << company << " Model: " << model << std::endl;
+            std::cout << "PassengerCar company: " << _company << " Model: " << _model << std::endl;
         }
     virtual ~PassengerCar()
     {
@@ -172,8 +168,9 @@ public:
     Bus(std::string _company, std::string _model)
         : Car(_company, _model)
         {
-            std::cout << "Bus company: " << company << " Model: " << model << std::endl;
+            std::cout << "Bus company: " << _company << " Model: " << _model << std::endl;
         }
+        
     virtual ~Bus()
     {
 
@@ -186,8 +183,9 @@ public:
     Minivan(std::string _company, std::string _model)
         : Car(_company, _model), PassengerCar(_company, _model), Bus(_company, _model)
         {
-            std::cout << "Minivan company: " << company << " Model: " << model << std::endl;
+            std::cout << "Minivan company: " << _company << " Model: " << _model << std::endl;
         }
+        
     virtual ~Minivan()
     {
 
@@ -201,15 +199,16 @@ class Fraction
 private:
 
     int m_numerator;
-    uint8_t m_denominator;
+    uint m_denominator;
 
 public:
-    Fraction() : m_numerator(0), m_denominator(0)
+
+    Fraction() : m_numerator(0), m_denominator(1)
     {
 
     }
 
-    Fraction(int numerator, uint8_t denominator)
+    Fraction(int numerator, uint denominator)
         : m_numerator(numerator)
     {
         if (denominator == 0)
@@ -222,7 +221,6 @@ public:
         {
             m_denominator = denominator;
         }
-        
     }
 
 
@@ -246,8 +244,13 @@ public:
 };
 
 std::ostream& operator<< (std::ostream &out, const Fraction &f1)
-{
-    out << f1.m_numerator << "/" << +f1.m_denominator;
+{   
+    if(f1.m_numerator == 0) 
+    {
+        out << 0 << "/" << 0;
+        return out;
+    }
+    out << f1.m_numerator << "/" << f1.m_denominator;
     return out;
 }
 
@@ -273,13 +276,19 @@ Fraction operator-(const Fraction& f1, const Fraction& f2)
 
 Fraction operator*(const Fraction& f1, const Fraction& f2)
 {
-    if(f1.m_numerator == 0 || f2.m_numerator == 0) return Fraction();
     return Fraction(f1.m_numerator * f2.m_numerator, f1.m_denominator * f2.m_denominator);
 }
 
 Fraction operator/(const Fraction& f1, const Fraction& f2)
 {
-    if(f1.m_numerator == 0 || f2.m_numerator == 0) return Fraction();
+    if(f2.m_numerator == 0) 
+    {
+        return Fraction();
+    }
+    if(f2.m_numerator < 0) 
+    {
+        return Fraction(f1.m_numerator * (-(static_cast<int>(f2.m_denominator))), static_cast<int>(f1.m_denominator) * (-f2.m_numerator));
+    }
     return Fraction(f1.m_numerator * f2.m_denominator, f1.m_denominator * f2.m_numerator);
 }
 
@@ -345,12 +354,12 @@ private:
         ace = 1
     } m_nominal;
 
-    bool m_isInverted = false; //рубашкой вверх
+    bool m_isFaceUp = false; //рубашкой вверх
 
 public:
 
-    Card(uint8_t suit, uint8_t nominal, bool is_inverted = false)
-        : m_suit(static_cast<Suit>(suit)), m_nominal(static_cast<Nominal>(nominal)), m_isInverted(is_inverted)
+    Card(uint8_t suit, uint8_t nominal, bool is_FaceUp = false)
+        : m_suit(static_cast<Suit>(suit)), m_nominal(static_cast<Nominal>(nominal)), m_isFaceUp(is_FaceUp)
     {
 
     }
@@ -362,7 +371,7 @@ public:
 
     void Flip()
     {
-        (m_isInverted) ? (m_isInverted = false) : (m_isInverted = true);
+        m_isFaceUp = !m_isFaceUp;
     }
 
     uint8_t GetValue() const
@@ -418,10 +427,10 @@ int main()
 
     //Третье задание
     Fraction a(1, 2);
-    Fraction b(1, 2);
-    Fraction d(2, 3);
+    Fraction b(0, 2);
+    Fraction d(1, 3);
 
-    std::cout << a - (-b) << std::endl;
+    std::cout << (a + b) * b << std::endl;
     std::cout << a - b << std::endl;
     std::cout << a * b << std::endl;
     std::cout << a / b << std::endl;
