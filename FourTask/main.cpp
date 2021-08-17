@@ -5,23 +5,24 @@
 class ArrayInt
 {
 private:
-    size_t m_lenght;
+    size_t m_lenght; //Длина массива фактическая, кол-во элементов
+    size_t m_size; //Размер выделяемой памяти
     int* m_data;
 
 public:
-    ArrayInt() : m_lenght(0), m_data(nullptr)
+    ArrayInt() : m_lenght(0), m_size(0), m_data(nullptr)
     {
 
     }
 
-    ArrayInt(int lenght) : m_lenght(lenght)
+    ArrayInt(int size) : m_lenght(0), m_size(size)
     {
-        assert(lenght >= 0);
+        assert(size >= 0);
 
-        if(lenght > 0)
+        if(size > 0)
         {
-            m_data = new int (lenght);
-            for (size_t idx = 0; idx < lenght; ++idx)
+            m_data = new int (size);
+            for (size_t idx = 0; idx < size; ++idx)
             {
                 m_data[idx] = 0;
             }
@@ -42,6 +43,7 @@ public:
         delete[] m_data;
         m_data = nullptr;
         m_lenght = 0;
+        m_size = 0;
     }
 
     size_t getLenght() const
@@ -55,30 +57,30 @@ public:
         return m_data[index];
     }
 
-    void resize(int newlenght)
+    void resize(int newsize)
     {
-        if (m_lenght == newlenght)
+        if (m_size == newsize)
         {
             return;
         }
 
-        if (newlenght <= 0)
+        if (newsize <= 0)
         {
             erase();
             return;
         }
 
-        int* data = new int [newlenght];
+        int* data = new int [newsize];
 
-        int elementsToCopy = (newlenght > m_lenght) ? m_lenght : newlenght;
+        int elementsToCopy = (newsize > m_lenght) ? m_lenght : newsize;
         for (size_t idx = 0; idx < elementsToCopy; ++idx)
         {
             data[idx] = m_data[idx];
         }
 
-        if (elementsToCopy < newlenght)
+        if (elementsToCopy < newsize)
         {
-            for (size_t idx = elementsToCopy; idx < newlenght; ++idx)
+            for (size_t idx = elementsToCopy; idx < newsize; ++idx)
             {
                 data[idx] = 0;
             }
@@ -86,11 +88,60 @@ public:
 
         delete[] m_data;
         m_data = data;
-        m_lenght = newlenght;
+        m_lenght = elementsToCopy;
+        m_size = newsize;
 
     }
 
-    
+    //Перегрузка метода, по-умолчанию, увеличивает память в два раза
+    //Нужно для push
+    void resize()
+    {
+
+        int* data = new int [m_size * 2];
+
+        for (size_t idx = 0; idx < m_lenght; ++idx)
+        {
+            data[idx] = m_data[idx];
+        }
+
+        for (size_t idx = m_lenght; idx < m_size * 2; ++idx)
+        {
+            data[idx] = 0;
+        }
+
+        delete[] m_data;
+        m_data = data;
+        m_size *= 2;
+    }
+
+    void pop_back()
+    {
+        //Т.к. алоцирование памяти дорогостоящая операция, то решил не перевыделять
+        --m_lenght;
+    }
+
+    void pop_front()
+    {
+        for (size_t idx = 0; idx < m_lenght - 1; ++idx)
+        {
+            m_data[idx] = m_data[idx+1];
+        }
+        --m_lenght;
+    }
+
+    void push_back(int element)
+    {
+        if (!m_size) 
+        {
+            resize(1);
+        }
+        if (m_lenght > m_size)
+        {
+            resize();
+        }
+        m_data[m_lenght++] = element;
+    }
 
     void print() const
     {
@@ -112,8 +163,13 @@ int main(int argc, char const *argv[])
 {
     ArrayInt array(5);
     array.print();
-    array.resize(7);
+    array.push_back(4);
+    array.push_back(4);
+    array.pop_back();
+    array.push_back(4);
+    array.pop_front();
     array.print();
-
+    std:: cout << array.getLenght() << std::endl;
+   
     return 0;
 }
