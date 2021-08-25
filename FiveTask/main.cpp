@@ -8,7 +8,7 @@ public:
     {
 
     }
-    virtual void message(std::string) const = 0;
+    virtual void message(const std::string&) const = 0;
 };
 
 class Interactive : public IInteractive
@@ -20,7 +20,7 @@ public:
 
     }
 
-    void message(std::string message) const override
+    void message(const std::string& message) const override
     {
         std::cout << message << std::endl;
     }
@@ -152,7 +152,7 @@ private:
     IInteractive* m_message;
 
 public:
-    GenericPlayer(std::string _name, IInteractive* message) : name(_name), m_message(message)
+    GenericPlayer(const std::string& _name, IInteractive* message) : name(_name), m_message(message)
     {
         
     }
@@ -183,7 +183,7 @@ public:
 class Player : public GenericPlayer
 {
     public:
-    Player(std::string _name, IInteractive* message) : GenericPlayer(_name, message)
+    Player(const std::string& _name, IInteractive* message) : GenericPlayer(_name, message)
     {
 
     }
