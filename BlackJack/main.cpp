@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 class IInteractive
 {
@@ -8,7 +9,7 @@ public:
     {
 
     }
-    virtual void message(std::string) const = 0;
+    virtual void message(const std::string&) const = 0;
     virtual bool question(std::string) = 0;
 };
 
@@ -20,10 +21,10 @@ public:
     {
 
     }
-
-    void message(std::string message) const override
+    
+    void message(const std::string& message) const override
     {
-        std::cout << message << std::endl;
+        std::cout << message;
     }
 
     virtual bool question(std::string message) override
@@ -65,9 +66,8 @@ public:
         
     };
 
-    bool m_isFaceUp = false; //рубашкой вверх
-
-    Card(Suit suit, Nominal nominal, bool is_FaceUp = false)
+    bool m_isFaceUp;
+    Card(Suit suit, Nominal nominal, bool is_FaceUp = true)
         : m_suit(suit), m_nominal(nominal), m_isFaceUp(is_FaceUp)
     {
 
@@ -127,9 +127,11 @@ class Hand
 {
 private:
     std::vector<Card*> m_Cards;
+    IInteractive* m_I;
 
 public:
-
+    Hand(){}
+    Hand(IInteractive* _I) : m_I(_I) {}
     virtual ~Hand()
     {
         Clear();
@@ -184,6 +186,11 @@ public:
         return m_Cards;
     }
 
+    IInteractive* getI() const
+    {
+        return m_I;
+    }
+
 
 };
 
@@ -191,10 +198,10 @@ class GenericPlayer : public Hand
 {
 private:
     std::string name;
-    IInteractive* m_I;
 
 public:
-    GenericPlayer(std::string _name, IInteractive* _I) : name(_name), m_I(_I)
+    GenericPlayer(){}
+    GenericPlayer(std::string _name, IInteractive* _I) : name(_name), Hand(_I)
     {
         
     }
@@ -213,8 +220,8 @@ public:
 
     void Bust() const
     {
-        m_I->message(name);
-        m_I->message("Is Over");
+        getI()->message(name);
+        getI()->message(" Is Over\n");
     }
 
     std::string getName() const
@@ -222,10 +229,7 @@ public:
         return name;
     }
 
-    IInteractive* getI() const
-    {
-        return m_I;
-    }
+    
 
     friend std::ostream& operator<<(std::ostream&, const GenericPlayer&);
 };
@@ -275,25 +279,25 @@ class Player : public GenericPlayer
     bool isHitting() const override
     {
         getI()->message(getName());
-        return getI()->question("Do you need a card?");
+        return getI()->question(" Do you need a card?");
     }
 
     void Win() const
     {
         getI()->message(getName());
-        getI()->message("You WIN!");
+        getI()->message(" You WIN!\n");
     }
 
     void Lose() const
     {
         getI()->message(getName());
-        getI()->message("You LOSE!");
+        getI()->message(" You LOSE!\n");
     }
 
     void Push() const
     {
         getI()->message(getName());
-        getI()->message("You Pushes!");
+        getI()->message(" You Pushes!\n");
     }
 
 };
@@ -301,6 +305,7 @@ class Player : public GenericPlayer
 class House : public GenericPlayer
 {
 public:
+    House(){}
     House(std::string _name, IInteractive* _I) : GenericPlayer(_name, _I)
     {
 
@@ -327,29 +332,208 @@ public:
             getI()->message("No card!");
         }
     }
+
 };
+
+class Deck : public Hand
+{
+public:
+    Deck()
+    {
+        getm_Cards().reserve(52);
+        Populate();
+    }
+
+    virtual ~Deck() {}
+
+    void Populate()
+    {
+        Clear();
+
+        for (uint8_t s = Card::clubs; s <= Card::spades; ++s)
+        {
+            for (uint8_t n = Card::ace; n <= Card::king; ++n)
+            {
+                Add(new Card(static_cast<Card::Suit>(s), static_cast<Card::Nominal>(n)));
+            }
+        }
+    }
+
+    void Shuffle()
+    {
+        random_shuffle(getm_Cards().begin(), getm_Cards().end());
+    }
+
+    void Deal(Hand& aHand)
+    {
+    if (!getm_Cards().empty())
+        {
+            aHand.Add(getm_Cards().back());
+            getm_Cards().pop_back();
+        }
+    else
+        {
+            getI()->message("Out of cards. Unable to deal.");
+        }
+    }
+
+    void AdditionalCards(GenericPlayer& aGenericPlayer)
+    {
+        std::cout << std::endl;
+        
+        while (!(aGenericPlayer.isBoosted()) && aGenericPlayer.isHitting())
+        {
+            Deal(aGenericPlayer);
+            std::cout << aGenericPlayer << std::endl;
+            
+            if (aGenericPlayer.isBoosted())
+            {
+                aGenericPlayer.Bust();
+            }
+        }   
+    }
+};
+
+class Game
+{
+private:
+    IInteractive* m_I;
+    Deck m_Deck;
+    House m_House;
+    std::vector<Player> m_Players;
+    
+
+public:
+    Game(const std::vector<std::string>& names, IInteractive* _I) : m_I(_I), m_House("House", _I)
+    {
+        std::vector<std::string>::const_iterator pName;
+        for (pName = names.begin(); pName != names.end(); ++pName)
+        {
+            m_Players.push_back(Player(*pName, _I));
+        }
+        
+        srand(static_cast<unsigned int>(time(0)));
+        m_Deck.Populate();
+        m_Deck.Shuffle();
+
+    }
+
+    void Play()
+    {
+        std::vector<Player>::iterator pPlayer;
+        for (uint8_t i = 0; i < 2; ++i)
+        {
+            for (pPlayer = m_Players.begin(); pPlayer != m_Players.end(); ++pPlayer)
+            {
+                m_Deck.Deal(*pPlayer);
+            }
+            m_Deck.Deal(m_House);
+        }
+        
+        m_House.FlipFirstCard();
+        
+        for (pPlayer = m_Players.begin(); pPlayer != m_Players.end(); ++pPlayer)
+        {
+            std::cout << *pPlayer << std::endl;
+        }
+        std::cout << m_House << std::endl;
+        
+        for (pPlayer = m_Players.begin(); pPlayer != m_Players.end(); ++pPlayer)
+        {
+            m_Deck.AdditionalCards(*pPlayer);
+        }
+        
+        m_House.FlipFirstCard();
+        std::cout << std::endl << m_House;
+        
+        m_Deck.AdditionalCards(m_House);
+        
+        if (m_House.isBoosted())
+        {
+            for (pPlayer = m_Players.begin(); pPlayer != m_Players.end(); ++pPlayer)
+            {
+                if (!(pPlayer->isBoosted()))
+                {
+                    pPlayer->Win();
+                }
+            }
+        }
+        else
+        {
+            for (pPlayer = m_Players.begin(); pPlayer != m_Players.end();
+                ++pPlayer)
+            {
+                if (!(pPlayer->isBoosted()))
+                {
+                    if (pPlayer->GetTotal() > m_House.GetTotal())
+                    {
+                        pPlayer->Win();
+                    }
+                    else if (pPlayer->GetTotal() < m_House.GetTotal())
+                    {
+                        pPlayer->Lose();
+                    }
+                    else
+                    {
+                        pPlayer->Push();
+                    }
+                }
+            }
+            
+        }
+        
+        for (pPlayer = m_Players.begin(); pPlayer != m_Players.end(); ++pPlayer)
+        {
+            pPlayer->Clear();
+        }
+        m_House.Clear();
+    }
+
+
+};
+
 
 int main(int argc, char const *argv[])
 {
     IInteractive* i = new Interactive;
-    Player p("Andrew", i);
 
-    std::cout << std::boolalpha<< p.isHitting() << std::endl;
+    while (true)
+    {
+        size_t count_players;
+        std::cout << "Input count Players :";
 
-    p.Win();
-    p.Lose();
-    p.Push();
+        while (!(std::cin >> count_players) || std::cin.peek() != '\n'
+                    || count_players < 1 || count_players > 10)
+        {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Error input, try yet!" << std::endl;
+        }
+        std::vector<std::string> names;
+        std::string n;
 
-    House h("House", i);
-    h.Add(new Card(Card::hearts, Card::seven, true));
-    h.Add(new Card(Card::hearts, Card::seven, true));
+        char yet;
 
-    std::cout << +h.GetTotal() << std::endl;
+        for (size_t idx = 0; idx < count_players; ++idx)
+        {
+            std::cout << "Input name player :";
+            std::cin >> n;
+            names.push_back(n);
+        }
 
-    std::cout << +h.GetTotal() << std::endl;
+        Game game(names, i);
+        game.Play();
 
-    std::cout << *(h.getm_Cards()[0]) << std::endl;
-    std::cout << h << std::endl;
+        std::cout << "Continue a game? (Y/N) : ";
+        std::cin >> yet;
+        if(!(yet == 'y' || yet == 'Y'))
+        {
+            break;
+        }
 
+    }
+    
+    delete i;
+   
     return 0;
 }
